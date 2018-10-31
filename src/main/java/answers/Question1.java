@@ -1,17 +1,20 @@
 package answers;
-import static java.lang.Math.*;
 
 public class Question1 {
 
 	public static int bestMergedPortfolio(int[] portfolios) {
-		// TODO Auto-generated method stub
-		int max = Integer.MIN_VALUE;
-		for(int i=0;i<portfolios.length;i++){
-			for(int j=1;j<=portfolios.length;j++){
-				max  = Math.max (max, portfolios[i] ^ portfolios[j]);
+		int n = portfolios.length ;
+		int maxValue = 0 ;
+		for (int i = 0; i < n - 1 ; i++) {
+			for (int j = i + 1 ; j < n ; j++) {
+				int pairValue = portfolios [ i ] ^ portfolios [ j ] ;
+				if ( pairValue > maxValue )
+				{
+					maxValue = pairValue ;
+				}
 			}
 		}
-		return max;
+		return maxValue;
 	}
 
 }
