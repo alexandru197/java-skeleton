@@ -1,122 +1,87 @@
 package answers;
 
+import java.util.*;
+import java.lang.*;
+import java.io.*;
 
-import helpers.Map;
-
-import java.util.Collection;
-import java.util.PriorityQueue;
-
-public class Question6 {
-	public static int shortestServerRoute(int numServers, int targetServer, int[][] times) {
-		Map graph = new Map();
-		graph.setArcs(times);
-		graph.setNumServers(numServers);
-		graph.setTarget(targetServer);
-		return dijkstra(graph);
-	}
-	private static int dijkstra(Map graph)
-	{
-		int n = graph.getNumServers();
-		int k = graph.getTarget();
-		int[][] costs = graph.getArcs();
-		Server[] serverList = new Server[n];
-		PriorityQueue<Server> servers = new PriorityQueue<>(n);
-		initializeServers(serverList,costs[0][k]);
-		addInQueue(serverList,servers);
-		while( ! servers.isEmpty() )
-		{
-			Server server = servers.poll();
-			int candidateServer = server.getNumber();
-			int distanceFromSource = server.getDistance();
-			for (int dest = 0; dest < n ; dest ++) {
-				if ( candidateServer != dest )
-				{
-					int lastDistance = serverList[dest].getDistance();
-					int cost = costs [ candidateServer ] [ dest ] ;
-
-					if ( lastDistance - cost > distanceFromSource   )
-					{
-						servers.remove(serverList[dest]);
-
-						/**
-						 * We are only interested to minimise the distance to kth server
-						 * so if a path already exceeds that value is no longer a valid
-						 * candidate
-						 */
-
-						if ( distanceFromSource + cost < serverList [ k ] .getDistance() )
-						{
-							serverList[dest].setDistance(distanceFromSource  + cost );
-							servers.add(serverList[dest]);
-						}
-					}
-
-				}
-			}
-		}
-		return serverList[k].getDistance() ;
-	}
-	private static void initializeServers ( Server[] servers , int value )
-	{
-		int n = servers.length ;
-		for (int i = 1; i < n ; i++)
-		{
-			servers [ i ] = new Server(value , i ) ;
-		}
-		servers [ 0 ] = new Server( 0 , 0 ) ;
-	}
-	private static void addInQueue(Server[] serverList , PriorityQueue<Server> serversQueue )
-	{
-		for (Server server:serverList)
-		{
-			serversQueue.add(server);
-		}
-	}
-	private static void displayServers(Collection<Server> servers )
-	{
-		for (Server server:servers)
-		{
-			System.out.println(server);
-		}
-	}
-
-
-}
-class Server implements Comparable<Server>
+public class Question6
 {
-	private int distance ;
-	private int number ;
+	static int V = 0;
+	static int dist[] = new int[1];
 
-	public Server(int distance, int number)
+	public static int minDistance(int dist[], Boolean sptSet[])
 	{
-		this.distance = distance ;
-		this.number = number ;
+		int min = Integer.MAX_VALUE, min_index=-1;
+
+		for (int v = 0; v < V; v++)
+			if (sptSet[v] == false && dist[v] <= min)
+			{
+				min = dist[v];
+				min_index = v;
+			}
+
+		return min_index;
 	}
 
-	public int getDistance() {
-		return distance;
-	}
-
-	public void setDistance(int distance) {
-		this.distance = distance;
-	}
-
-	public int getNumber() {
-		return number;
-	}
-
-	public void setNumber(int number) {
-		this.number = number;
-	}
-
-
-	@Override
-	public int compareTo(Server server) {
-		return this.distance - server.getDistance();
-	}
-	@Override
-	public String toString()
+	public static void printSolution(int dist[], int n)
 	{
-		return "The node is " + number + " and the distance: " + distance;
+		System.out.println("Vertex   Distance from Source");
+		for (int i = 0; i < V; i++)
+			System.out.println(i+" tt "+dist[i]);
 	}
+
+	public static void dijkstra(int graph[][], int src)
+	{
+		Boolean sptSet[] = new Boolean[V];
+
+		for (int i = 0; i < V; i++)
+		{
+			dist[i] = Integer.MAX_VALUE;
+			sptSet[i] = false;
+		}
+
+		dist[src] = 0;
+
+		for (int count = 0; count < V-1; count++)
+		{
+			int u = minDistance(dist, sptSet);
+			sptSet[u] = true;
+
+			for (int v = 0; v < V; v++)
+				if (!sptSet[v] &&
+						dist[u] != Integer.MAX_VALUE &&
+						dist[u]+graph[u][v] < dist[v])
+					dist[v] = dist[u] + graph[u][v];
+		}
+
+		// print the constructed distance array
+//        printSolution(dist, V);
+	}
+
+
+	public static int shortestServerRoute(int numServers, int targetServer, int[][] times) {
+		if (times == null || times.length == 0) {
+			return 0;
+		}
+
+		V = numServers;
+		dist = new int[V+10];
+
+		dijkstra(times, 0);
+
+		return dist[targetServer];
+	}
+
+//    public static void main (String[] args)
+//    {
+//
+//        /* Let us create the example graph discussed above */
+//        int graph[][] = new int[][]{
+//                {0, 7, 4},
+//                {7, 0, 2},
+//                {4, 2, 0}
+//        };
+//
+//        System.out.println(shortestServerRoute(graph.length, 1, graph));
+//    }
 }
